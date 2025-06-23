@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Manajemen User</title>
+    </head>
+    <body>
+        <h1>Manajemen User</h1>
+
+        <form id="userForm">
+            <input type="text" id="name" placeholder="Nama User" required>
+            <input type="email" id="email" placeholder="Email User" required>
+            <button type="submit">Simpan User</button>
+        </form>
+
+        <ul id="userList"></ul>
+
+        <script>
+            const apiURL = "http://localhost:3000/api/users"; // Ganti sesuai API kamu
+            let editId = null;
+
+            async function loadUsers() {
+            try {
+                const res = await fetch(apiURL);
+                const data = await res.json();
+                const list = document.getElementById('userList');
+                list.innerHTML = '';
+                data.forEach((user) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ${user.name} - ${user.email}
+                    <button onclick="editUser('${user._id}', '${user.name}', '${user.email}')">Edit</button>
+                    <button onclick="hapusUser('${user._id}')">Hapus</button>
+                `;
+                list.appendChild(li);
+                });
+            } catch (err) {
+                console.error("Gagal memuat data:", err);
+            }
+            }
+
+            function ambilDataForm() {
+            return {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value
+            };
+            }
+
+            async function simpanUser(e) {
+            e.preventDefault();
+            const data = ambilDataForm();
+
+            try {
+                if (editId) {
+                // update
+                await fetch(`${apiURL}/${editId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                editId = null;
+                } else {
+                // insert
+                await fetch(apiURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                }
+                document.getElementById('userForm').reset();
+                loadUsers();
+            } catch (err) {
+                console.error("Gagal menyimpan data:", err);
+            }
+            }
+
+            async function hapusUser(id) {
+            try {
+                await fetch(`${apiURL}/${id}`, { method: 'DELETE' });
+                loadUsers();
+            } catch (err) {
+                console.error("Gagal menghapus data:", err);
+            }
+            }
+
+            function editUser(id, name, email) {
+            document.getElementById('name').value = name;
+            document.getElementById('email').value = email;
+            editId = id;
+            }
+
+            document.getElementById('userForm').addEventListener('submit', simpanUser);
+            loadUsers();
+        </script>
+    </body>
+</html>

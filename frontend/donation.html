@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Manajemen Donation</title>
+    </head>
+    <body>
+        <h1>Manajemen Donation</h1>
+
+        <form id="donationForm">
+            <select id="user_id" required>
+                <option value>Pilih User</option>
+            </select>
+            <select id="campaign_id" required>
+                <option value>Pilih Campaign</option>
+            </select>
+            <input type="number" id="amount" placeholder="Amount" required>
+            <input type="text" id="note" placeholder="Note">
+            <button type="submit">Simpan Donation</button>
+        </form>
+
+        <ul id="donationList"></ul>
+
+        <script>
+            const apiDonation = "http://localhost:3000/api/donations";
+            const apiUser = "http://localhost:3000/api/users";
+            const apiCampaign = "http://localhost:3000/api/campaigns";
+            let editId = null;
+
+            async function loadUsers() {
+            const res = await fetch(apiUser);
+            const users = await res.json();
+            const sel = document.getElementById('user_id');
+            sel.innerHTML = '<option value="">Pilih User</option>';
+            users.forEach(u => {
+                sel.innerHTML += `<option value="${u._id}">${u.name}</option>`;
+            });
+            }
+
+            async function loadCampaigns() {
+            const res = await fetch(apiCampaign);
+            const campaigns = await res.json();
+            const sel = document.getElementById('campaign_id');
+            sel.innerHTML = '<option value="">Pilih Campaign</option>';
+            campaigns.forEach(c => {
+                sel.innerHTML += `<option value="${c._id}">${c.title}</option>`;
+            });
+            }
+
+            async function loadDonations() {
+            const res = await fetch(apiDonation);
+            const data = await res.json();
+            const list = document.getElementById('donationList');
+            list.innerHTML = '';
+            data.forEach(d => {
+                list.innerHTML += `
+                <li>${d.amount} - ${d.note}
+                    <button onclick="editDonation('${d._id}', '${d.user_id}', '${d.campaign_id}', ${d.amount}, '${d.note || ''}')">Edit</button>
+                    <button onclick="hapusDonation('${d._id}')">Hapus</button>
+                </li>
+                `;
+            });
+            }
+
+            async function simpanDonation(e) {
+            e.preventDefault();
+            const data = {
+                user_id: document.getElementById('user_id').value,
+                campaign_id: document.getElementById('campaign_id').value,
+                amount: document.getElementById('amount').value,
+                note: document.getElementById('note').value
+            };
+
+            if (editId) {
+                await fetch(`${apiDonation}/${editId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+                });
+                editId = null;
+            } else {
+                await fetch(apiDonation, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+                });
+            }
+
+            document.getElementById('donationForm').reset();
+            loadDonations();
+            }
+
+            async function hapusDonation(id) {
+            await fetch(`${apiDonation}/${id}`, { method: 'DELETE' });
+            loadDonations();
+            }
+
+            function editDonation(id, user_id, campaign_id, amount, note) {
+            document.getElementById('user_id').value = user_id;
+            document.getElementById('campaign_id').value = campaign_id;
+            document.getElementById('amount').value = amount;
+            document.getElementById('note').value = note;
+            editId = id;
+            }
+
+            document.getElementById('donationForm').addEventListener('submit', simpanDonation);
+            loadUsers();
+            loadCampaigns();
+            loadDonations();
+        </script>
+    </body>
+</html>

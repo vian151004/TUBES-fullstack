@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Manajemen Campaign</title>
+    </head>
+    <body>
+        <h1>Manajemen Campaign</h1>
+
+        <form id="campaignForm">
+            <!-- <select id="user_id" required>
+                <option value>--Pilih User--</option>
+            </select> -->
+
+            <input type="text" id="title" placeholder="Judul Campaign" required>
+
+            <textarea id="description" placeholder="Deskripsi Campaign"
+                required>
+            </textarea>
+
+            <input type="number" id="target_amount" placeholder="Target Donasi (Rp)" required>
+
+            <input type="date" id="deadline" required>
+
+            <select id="priority" required>
+                <option value>--Pilih Prioritas--</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+
+            <button type="submit">Simpan Campaign</button>
+        </form>
+
+        <ul id="campaignList"></ul>
+
+        <script>
+            const apiCampaign = "http://localhost:3000/api/campaigns";
+            const apiUser = "http://localhost:3000/api/users";
+            let editId = null;
+
+            async function loadUsersForDropdown() {
+                const res = await fetch(apiUser);
+                const users = await res.json();
+                const sel = document.getElementById('user_id');
+                users.forEach(u => {
+                    sel.innerHTML += `<option value="${u._id}">${u.name}</option>`;
+                });
+            }
+
+            async function loadCampaigns() {
+                const res = await fetch(apiCampaign);
+                const data = await res.json();
+                // console.log(data)
+                const list = document.getElementById('campaignList');
+                list.innerHTML = '';
+                data.forEach(c => {
+                    list.innerHTML += `
+                    <li>${c.title} - ${c.target_amount} - ${c.priority}
+                    <button onclick="editCampaign('${c._id}', '${c.user_id}', '${c.title}', '${c.description}', ${c.target_amount}, '${c.deadline}', '${c.priority}')">Edit</button>
+                    <button onclick="hapusCampaign('${c._id}')">Hapus</button></li>
+                    `;
+                });
+                // console.log("Campaigns loaded:", data);
+            }
+
+            // async function loadCampaigns() {
+            // const res = await fetch(apiCampaign);
+            // const data = await res.json();
+            // const list = document.getElementById('campaignList');
+            // list.innerHTML = '';
+            // data.forEach(c => {
+            //     console.log(c.target_amount);
+            //     list.innerHTML += `
+            //     <li>${c.title} - ${c.target_amount} - ${c.priority}
+            //     <button onclick="editCampaign('${c._id}', '${c.user_id}', '${c.title}', '${c.description}', ${c.target_amount}, '${c.deadline}', '${c.priority}')">Edit</button>
+            //     <button onclick="hapusCampaign('${c._id}')">Hapus</button></li>
+            //     `;
+            // });
+            // }
+
+            async function simpanCampaign(e) {
+                e.preventDefault();
+                const data = {
+                    user_id: document.getElementById('user_id').value,
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    target_amount: Number(document.getElementById('target_amount').value),
+                    deadline: document.getElementById('deadline').value,
+                    priority: document.getElementById('priority').value
+                };
+                // console.log("Data dikirim:", data);
+
+                if (editId) {
+                    await fetch(`${apiCampaign}/${editId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                    });
+                    editId = null;
+                } else {
+                    await fetch(apiCampaign, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                    });
+                }
+
+                document.getElementById('campaignForm').reset();
+                loadCampaigns();
+            }
+            
+            async function hapusCampaign(id) {
+            await fetch(`${apiCampaign}/${id}`, { method: 'DELETE' });
+            loadCampaigns();
+            }
+
+            function editCampaign(id, user_id, title, description, target_amount, deadline, priority) {
+                // document.getElementById('user_id').value = user_id;
+                document.getElementById('title').value = title;
+                document.getElementById('description').value = description;
+                document.getElementById('target_amount').value = target_amount;
+                document.getElementById('deadline').value = deadline.split("T")[0]; // untuk input date
+                document.getElementById('priority').value = priority;
+                editId = id;
+            }
+
+            document.getElementById('campaignForm').addEventListener('submit', simpanCampaign);
+            // loadUsersForDropdown();
+            loadCampaigns();
+        </script>
+    </body>
+</html>
