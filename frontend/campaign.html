@@ -8,9 +8,9 @@
         <h1>Manajemen Campaign</h1>
 
         <form id="campaignForm">
-            <!-- <select id="user_id" required>
+            <select id="user_id" required>
                 <option value>--Pilih User--</option>
-            </select> -->
+            </select>
 
             <input type="text" id="title" placeholder="Judul Campaign" required>
 
@@ -126,7 +126,7 @@
             }
 
             document.getElementById('campaignForm').addEventListener('submit', simpanCampaign);
-            // loadUsersForDropdown();
+            loadUsersForDropdown();
             loadCampaigns();
         </script>
     </body>

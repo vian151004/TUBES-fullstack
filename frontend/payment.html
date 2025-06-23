@@ -11,15 +11,28 @@
             <select id="user_id" required>
                 <option value>Pilih User</option>
             </select>
+
             <select id="donation_id" required>
                 <option value>Pilih Donation</option>
             </select>
-            <input type="text" id="method"
-                placeholder="Method (contoh: transfer_bank)" required>
-            <input type="text" id="status"
-                placeholder="Status (contoh: pending)" required>
+
+            <select id="method" required>
+                <option value>Pilih Method</option>
+                <option value="transfer_bank">Transfer Bank</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="e_wallet">E-Wallet</option>
+            </select>
+
+            <select id="status" required>
+                <option value>Pilih Status</option>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="failed">Failed</option>
+            </select>
+
             <input type="number" id="total_amount" placeholder="Total Amount"
                 required>
+
             <button type="submit">Simpan Payment</button>
         </form>
 
@@ -32,81 +45,81 @@
             let editId = null;
 
             async function loadUsers() {
-            const res = await fetch(apiUser);
-            const users = await res.json();
-            const sel = document.getElementById('user_id');
-            sel.innerHTML = '<option value="">Pilih User</option>';
-            users.forEach(u => {
-                sel.innerHTML += `<option value="${u._id}">${u.name}</option>`;
-            });
+                const res = await fetch(apiUser);
+                const users = await res.json();
+                const sel = document.getElementById('user_id');
+                sel.innerHTML = '<option value="">Pilih User</option>';
+                users.forEach(u => {
+                    sel.innerHTML += `<option value="${u._id}">${u.name}</option>`;
+                });
             }
 
             async function loadDonations() {
-            const res = await fetch(apiDonation);
-            const donations = await res.json();
-            const sel = document.getElementById('donation_id');
-            sel.innerHTML = '<option value="">Pilih Donation</option>';
-            donations.forEach(d => {
-                sel.innerHTML += `<option value="${d._id}">${d.amount} - ${d.note || ''}</option>`;
-            });
+                const res = await fetch(apiDonation);
+                const donations = await res.json();
+                const sel = document.getElementById('donation_id');
+                sel.innerHTML = '<option value="">Pilih Donation</option>';
+                donations.forEach(d => {
+                    sel.innerHTML += `<option value="${d._id}">${d.amount} - ${d.note || ''}</option>`;
+                });
             }
 
             async function loadPayments() {
-            const res = await fetch(apiPayment);
-            const data = await res.json();
-            const list = document.getElementById('paymentList');
-            list.innerHTML = '';
-            data.forEach(p => {
-                list.innerHTML += `
-                <li>${p.method} - ${p.status} - ${p.total_amount}
-                    <button onclick="editPayment('${p._id}', '${p.user_id}', '${p.donation_id}', '${p.method}', '${p.status}', ${p.total_amount})">Edit</button>
-                    <button onclick="hapusPayment('${p._id}')">Hapus</button>
-                </li>
-                `;
-            });
+                const res = await fetch(apiPayment);
+                const data = await res.json();
+                const list = document.getElementById('paymentList');
+                list.innerHTML = '';
+                data.forEach(p => {
+                    list.innerHTML += `
+                    <li>${p.method} - ${p.status} - ${p.total_amount}
+                        <button onclick="editPayment('${p._id}', '${p.user_id}', '${p.donation_id}', '${p.method}', '${p.status}', ${p.total_amount})">Edit</button>
+                        <button onclick="hapusPayment('${p._id}')">Hapus</button>
+                    </li>
+                    `;
+                });
             }
 
             async function simpanPayment(e) {
-            e.preventDefault();
-            const data = {
-                user_id: document.getElementById('user_id').value,
-                donation_id: document.getElementById('donation_id').value,
-                method: document.getElementById('method').value,
-                status: document.getElementById('status').value,
-                total_amount: document.getElementById('total_amount').value
-            };
+                e.preventDefault();
+                const data = {
+                    user_id: document.getElementById('user_id').value,
+                    donation_id: document.getElementById('donation_id').value,
+                    method: document.getElementById('method').value,
+                    status: document.getElementById('status').value,
+                    total_amount: document.getElementById('total_amount').value
+                };
 
-            if (editId) {
-                await fetch(`${apiPayment}/${editId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-                });
-                editId = null;
-            } else {
-                await fetch(apiPayment, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-                });
-            }
+                if (editId) {
+                    await fetch(`${apiPayment}/${editId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                    });
+                    editId = null;
+                } else {
+                    await fetch(apiPayment, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                    });
+                }
 
-            document.getElementById('paymentForm').reset();
-            loadPayments();
+                document.getElementById('paymentForm').reset();
+                loadPayments();
             }
 
             async function hapusPayment(id) {
-            await fetch(`${apiPayment}/${id}`, { method: 'DELETE' });
-            loadPayments();
+                await fetch(`${apiPayment}/${id}`, { method: 'DELETE' });
+                loadPayments();
             }
 
             function editPayment(id, user_id, donation_id, method, status, total_amount) {
-            document.getElementById('user_id').value = user_id;
-            document.getElementById('donation_id').value = donation_id;
-            document.getElementById('method').value = method;
-            document.getElementById('status').value = status;
-            document.getElementById('total_amount').value = total_amount;
-            editId = id;
+                document.getElementById('user_id').value = user_id;
+                document.getElementById('donation_id').value = donation_id;
+                document.getElementById('method').value = method;
+                document.getElementById('status').value = status;
+                document.getElementById('total_amount').value = total_amount;
+                editId = id;
             }
 
             document.getElementById('paymentForm').addEventListener('submit', simpanPayment);
