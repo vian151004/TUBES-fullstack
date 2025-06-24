@@ -71,9 +71,14 @@
                 list.innerHTML = '';
                 data.forEach(p => {
                     list.innerHTML += `
-                    <li>${p.method} - ${p.status} - ${p.total_amount}
-                        <button onclick="editPayment('${p._id}', '${p.user_id}', '${p.donation_id}', '${p.method}', '${p.status}', ${p.total_amount})">Edit</button>
-                        <button onclick="hapusPayment('${p._id}')">Hapus</button>
+                    <li style="border-bottom: 1px solid #ccc; padding: 5px 0;">
+                        ${p.method} - ${p.status} - ${p.total_amount}
+                        <button onclick="editPayment('${p._id}', '${p.user_id}', '${p.donation_id}', '${p.method}', '${p.status}', ${p.total_amount})">
+                            Edit
+                        </button>
+                        <button onclick="hapusPayment('${p._id}')">
+                            Hapus
+                        </button>
                     </li>
                     `;
                 });

@@ -27,9 +27,14 @@
                 list.innerHTML = '';
                 data.forEach(s => {
                 list.innerHTML += `
-                    <li>${s.name}: ${s.email}
-                    <button onclick="editSetting('${s._id}', '${s.name}', '${s.email}')">Edit</button>
-                    <button onclick="hapusSetting('${s._id}')">Hapus</button>
+                    <li style="border-bottom: 1px solid #ccc; padding: 5px 0;">
+                        ${s.name}: ${s.email}
+                        <button onclick="editSetting('${s._id}', '${s.name}', '${s.email}')">
+                            Edit
+                        </button>
+                        <button onclick="hapusSetting('${s._id}')">
+                            Hapus
+                        </button>
                     </li>
                 `;
                 });
@@ -39,32 +44,32 @@
             }
 
             async function simpanSetting(e) {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value
-            };
+                e.preventDefault();
+                const data = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value
+                };
 
-            try {
-                if (editId) {
-                await fetch(`${apiSettings}/${editId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                editId = null;
-                } else {
-                await fetch(apiSettings, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+                try {
+                    if (editId) {
+                    await fetch(`${apiSettings}/${editId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    editId = null;
+                    } else {
+                    await fetch(apiSettings, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    }
+                    document.getElementById('settingsForm').reset();
+                    loadSettings();
+                } catch (err) {
+                    console.error("Gagal menyimpan setting:", err);
                 }
-                document.getElementById('settingsForm').reset();
-                loadSettings();
-            } catch (err) {
-                console.error("Gagal menyimpan setting:", err);
-            }
             }
 
             async function hapusSetting(id) {
@@ -77,9 +82,9 @@
             }
 
             function editSetting(id, name, email) {
-            document.getElementById('name').value = name;
-            document.getElementById('email').value = email;
-            editId = id;
+                document.getElementById('name').value = name;
+                document.getElementById('email').value = email;
+                editId = id;
             }
 
             document.getElementById('settingsForm').addEventListener('submit', simpanSetting);

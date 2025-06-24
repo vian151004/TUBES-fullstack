@@ -56,28 +56,19 @@
                 list.innerHTML = '';
                 data.forEach(c => {
                     list.innerHTML += `
-                    <li>${c.title} - ${c.target_amount} - ${c.priority}
-                    <button onclick="editCampaign('${c._id}', '${c.user_id}', '${c.title}', '${c.description}', ${c.target_amount}, '${c.deadline}', '${c.priority}')">Edit</button>
-                    <button onclick="hapusCampaign('${c._id}')">Hapus</button></li>
+                    <li style="border-bottom: 1px solid #ccc; padding: 5px 0;">
+                        ${c.title} - ${c.description} - ${c.target_amount} - ${c.priority}
+                        <button onclick="editCampaign('${c._id}', '${c.user_id}', '${c.title}', '${c.description}', ${c.target_amount}, '${c.deadline}', '${c.priority}')">
+                            Edit
+                        </button>
+                        <button onclick="hapusCampaign('${c._id}')">
+                            Hapus
+                        </button>
+                    </li>
                     `;
                 });
                 // console.log("Campaigns loaded:", data);
             }
-
-            // async function loadCampaigns() {
-            // const res = await fetch(apiCampaign);
-            // const data = await res.json();
-            // const list = document.getElementById('campaignList');
-            // list.innerHTML = '';
-            // data.forEach(c => {
-            //     console.log(c.target_amount);
-            //     list.innerHTML += `
-            //     <li>${c.title} - ${c.target_amount} - ${c.priority}
-            //     <button onclick="editCampaign('${c._id}', '${c.user_id}', '${c.title}', '${c.description}', ${c.target_amount}, '${c.deadline}', '${c.priority}')">Edit</button>
-            //     <button onclick="hapusCampaign('${c._id}')">Hapus</button></li>
-            //     `;
-            // });
-            // }
 
             async function simpanCampaign(e) {
                 e.preventDefault();
@@ -116,7 +107,7 @@
             }
 
             function editCampaign(id, user_id, title, description, target_amount, deadline, priority) {
-                // document.getElementById('user_id').value = user_id;
+                document.getElementById('user_id').value = user_id;
                 document.getElementById('title').value = title;
                 document.getElementById('description').value = description;
                 document.getElementById('target_amount').value = target_amount;
